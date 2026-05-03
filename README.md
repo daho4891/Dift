@@ -205,7 +205,21 @@ dift examples/old.json examples/new.json --key customer_id
 ```bash
 dift examples/old.csv examples/new.csv --key customer_id --report json --output report.json
 ```
+### Generate CSV Report
 
+```bash
+dift examples/old.csv examples/new.csv --key customer_id --report csv --output report.csv
+```
+### Generate Excel Report
+
+```bash
+dift examples/old.csv examples/new.csv --key customer_id --report excel --output report.xlsx
+```
+### Generate HTML Report
+
+```bash
+dift examples/old.csv examples/new.csv --key customer_id --report html --output report.html
+```
 ---
 
 ## Example Output
@@ -313,6 +327,9 @@ dift/
 ├── reports/
 │   ├── console_report.py
 │   ├── json_report.py
+|   ├── csv_report.py
+|   ├── excel_report.py
+|   ├── html_report.py
 │   └── models.py
 └── utils/
 

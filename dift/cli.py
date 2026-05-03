@@ -10,6 +10,8 @@ from dift.core.comparator import compare_datasets
 from dift.reports.console_report import render_console
 from dift.reports.json_report import render_json
 from dift.reports.csv_report import render_csv
+from dift.reports.excel_report import render_excel
+from dift.reports.html_report import render_html
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -37,6 +39,8 @@ class ReportFormat(str, Enum):
     console = "console"
     json = "json"
     csv = "csv"
+    excel = "excel"
+    html = "html"
 
 
 @app.command()
@@ -87,6 +91,9 @@ def main(
       dift old.csv new.csv --report json --output report.json
       dift old.csv new.csv --report csv --output summary.csv
       dift old.csv new.csv --report csv --output-dir reports/
+      dift old.csv new.csv --report csv --output report.csv
+      dift old.csv new.csv --report excel --output report.xlsx
+      dift old.csv new.csv --report html --output report.html
     """
 
     missing_files: list[str] = []
@@ -117,6 +124,8 @@ def main(
         extension_map = {
             ReportFormat.json: "json",
             ReportFormat.csv: "csv",
+            ReportFormat.excel: "xlsx",
+            ReportFormat.html: "html",
         }
 
         if report in extension_map:
@@ -141,6 +150,14 @@ def main(
                 console.print(payload)
             else:
                 success(f"Wrote CSV report to {output}")
+
+        elif report == ReportFormat.excel:
+            output_path = render_excel(diff_report, output=output)
+            success(f"Wrote Excel report to {output_path}")
+
+        elif report == ReportFormat.html:
+            output_path = render_html(diff_report, output=output)
+            success(f"Wrote HTML report to {output_path}")
 
         else:
             render_console(diff_report)
