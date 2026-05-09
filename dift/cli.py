@@ -75,6 +75,12 @@ def main(
         "--template",
         help="HTML report template. Options: default, clean, compact, enterprise, dark.",
     ),
+    threshold: float = typer.Option(
+        0.1,
+        "--threshold",
+        "-t",
+        help="Threshold for numeric drift detection (mean difference).",
+    ),
 ) -> None:
     """
     Compare two datasets and instantly detect:
@@ -138,8 +144,7 @@ def main(
             output = os.path.join(output_dir, f"dift_report.{extension}")
 
     try:
-        diff_report = compare_datasets(old_dataset, new_dataset, key=key)
-
+        diff_report = compare_datasets(old_dataset, new_dataset, key=key, threshold=threshold)
         if report == ReportFormat.json:
             payload = render_json(diff_report, output=output)
 

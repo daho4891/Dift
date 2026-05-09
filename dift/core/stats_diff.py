@@ -20,7 +20,7 @@ NUMERIC_DTYPES = {
 CATEGORICAL_DTYPES = {pl.String, pl.Categorical, pl.Enum, pl.Boolean}
 
 
-def compare_stats(old: pl.DataFrame, new: pl.DataFrame, top_n: int = 10) -> StatsDiff:
+def compare_stats(old: pl.DataFrame, new: pl.DataFrame, top_n: int = 10, threshold: float = 0.1 ) -> StatsDiff:
     """Compare numeric summary stats and categorical top values."""
     shared_cols = sorted(set(old.columns) & set(new.columns))
     numeric_diffs: list[NumericDiff] = []
@@ -35,6 +35,8 @@ def compare_stats(old: pl.DataFrame, new: pl.DataFrame, top_n: int = 10) -> Stat
             new_series = new[column]
             old_mean = _safe_float(old_series.mean())
             new_mean = _safe_float(new_series.mean())
+            delta = abs(new_mean - old_mean) if new_mean is not None and old_mean is not None else 0
+            is_drifted = delta > threshold
             numeric_diffs.append(
                 NumericDiff(
                     column=column,
@@ -47,6 +49,8 @@ def compare_stats(old: pl.DataFrame, new: pl.DataFrame, top_n: int = 10) -> Stat
                     delta_mean=_safe_delta(new_mean, old_mean),
                     old_std=_safe_float(old_series.std()),
                     new_std=_safe_float(new_series.std()),
+                    is_drifted=is_drifted,
+                    drift_threshold=threshold
                 )
             )
 
