@@ -53,6 +53,12 @@ def main(
         "-k",
         help="Primary key column for row comparison.",
     ),
+    threshold: float = typer.Option(
+        0.1,
+        "--threshold",
+        "-t",
+        help="Threshold for numeric drift detection (mean difference).",
+    ),
     report: ReportFormat = typer.Option(
         ReportFormat.console,
         "--report",
@@ -74,12 +80,6 @@ def main(
         "default",
         "--template",
         help="HTML report template. Options: default, clean, compact, enterprise, dark.",
-    ),
-    threshold: float = typer.Option(
-        0.1,
-        "--threshold",
-        "-t",
-        help="Threshold for numeric drift detection (mean difference).",
     ),
 ) -> None:
     """
