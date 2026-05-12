@@ -63,6 +63,7 @@ def _build_html(report: DiffReport, template: str) -> str:
     {_schema_section(report)}
     {_row_section(report)}
     {_quality_section(report)}
+    {_numeric_section(report)}
 
   </main>
 </body>
@@ -195,6 +196,57 @@ def _quality_section(report: DiffReport) -> str:
         <tr><td>Spike</td><td>{"Yes" if duplicate.is_spike else "No"}</td></tr>
         <tr><td>Severity</td><td>{_safe(duplicate.severity)}</td></tr>
       </table>
+    </section>
+    """
+
+
+def _numeric_section(report: DiffReport) -> str:
+    num_diff_tables = ""
+
+    if len(report.numeric_diff) == 0:
+        num_diff_tables += "No numeric columns detected."
+
+    else:
+        for num_diff in report.numeric_diff:
+            num_diff_tables += \
+    f"""
+    <h3>Column: {_safe(num_diff.column)}</h3>
+    <table>
+      <tr>
+        <th>Metric</th><th>Old Value</th>
+        <th>New Value</th><th>Change</th>
+      </tr>
+      <tr>
+        <td>Mean</td>
+        <td>{num_diff.old_mean:.2f}</td>
+        <td>{num_diff.new_mean:.2f}</td>
+        <td>{num_diff.delta_mean:.2f}</td>
+      </tr>
+      <tr>
+        <td>Min</td>
+        <td>{num_diff.old_min:.2f}</td>
+        <td>{num_diff.new_min:.2f}</td><td></td>
+      </tr>
+      <tr>
+        <td>Max</td>
+        <td>{num_diff.old_max:.2f}</td>
+        <td>{num_diff.new_max:.2f}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>StDev</td>
+        <td>{num_diff.old_std:.2f}</td>
+        <td>{num_diff.new_std:.2f}</td>
+        <td>{num_diff.delta_std:.2f}</td>
+      </tr>
+    </table>
+    """
+            #       <tr><td></td><td>{}</td><td>{}</td><td>{}</td></tr>
+
+    return f"""
+    <section class="card">
+    <h2>Numeric Diff</h2>
+    {num_diff_tables}
     </section>
     """
 
