@@ -91,6 +91,7 @@ class NumericDiff(BaseModel):
     severity: str = "low"
     old_outliers: list[float] | None = None
     new_outliers: list[float] | None = None
+    delta_outliers: str = ""
 
 
 class CategoricalDiff(BaseModel):

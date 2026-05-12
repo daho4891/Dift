@@ -77,6 +77,8 @@ def compare_stats(
 
             old_outliers = _list_outliers_iqr(old_series)
             new_outliers = _list_outliers_iqr(new_series)
+            delta_outliers = _classify_outlier_delta(
+                old_outliers, new_outliers)
 
             numeric_diffs.append(
                 NumericDiff(
@@ -100,6 +102,7 @@ def compare_stats(
                     severity=severity,
                     old_outliers=old_outliers,
                     new_outliers=new_outliers,
+                    delta_outliers=delta_outliers
                 )
             )
 
@@ -184,6 +187,18 @@ def _classify_numeric_drift(
         return "low"
 
     return "low"
+
+
+def _classify_outlier_delta(old: list[float] | None, new: list[float] | None) -> str:
+    if old is None or new is None:
+        return ""
+    if len(old) < len(new):
+        return "More outliers detected"
+    if len(old) > len(new):
+        return "Fewer outliers detected"
+    if len(old) == len(new):
+        return "Number of outliers did not change"
+    return ""
 
 
 def _safe_delta(
