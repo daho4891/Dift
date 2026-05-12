@@ -63,6 +63,7 @@ def _build_html(report: DiffReport, template: str) -> str:
     {_schema_section(report)}
     {_row_section(report)}
     {_quality_section(report)}
+    {_numeric_section(report)}
     {_outlier_section(report)}
     {_categorical_section(report)}
 
@@ -200,6 +201,59 @@ def _quality_section(report: DiffReport) -> str:
     </section>
     """
 
+
+def _numeric_section(report: DiffReport) -> str:
+    rows = ""
+
+    for item in report.numeric_diff:
+        rows += (
+            "<tr>"
+            f"<td>{_safe(item.column)}</td>"
+            f"<td>{_safe(item.old_mean)}</td>"
+            f"<td>{_safe(item.new_mean)}</td>"
+            f"<td>{_safe(item.delta_mean)}</td>"
+            f"<td>{_safe_pct(item.mean_shift_pct)}</td>"
+            f"<td>{_safe(item.old_std)}</td>"
+            f"<td>{_safe(item.new_std)}</td>"
+            f"<td>{_safe(item.delta_std)}</td>"
+            f"<td>{_safe_pct(item.std_shift_pct)}</td>"
+            f"<td>{_safe(item.delta_range)}</td>"
+            f"<td>{_safe_pct(item.range_shift_pct)}</td>"
+            f"<td>{_safe(item.drift_threshold)}</td>"
+            f"<td>{'Yes' if item.is_drifted else 'No'}</td>"
+            f"<td>{_safe(item.severity)}</td>"
+            "</tr>"
+        )
+
+    if not rows:
+        rows = '<tr><td colspan="14">No numeric drift detected.</td></tr>'
+
+    return f"""
+    <section class="card">
+      <h2>Numeric Drift</h2>
+      <table>
+        <tr>
+          <th>Column</th>
+          <th>Old Mean</th>
+          <th>New Mean</th>
+          <th>Delta Mean</th>
+          <th>Mean Shift %</th>
+          <th>Old Std</th>
+          <th>New Std</th>
+          <th>Delta Std</th>
+          <th>Std Shift %</th>
+          <th>Delta Range</th>
+          <th>Range Shift %</th>
+          <th>Threshold</th>
+          <th>Drifted</th>
+          <th>Severity</th>
+        </tr>
+        {rows}
+      </table>
+    </section>
+    """
+
+
 def _outlier_section(report: DiffReport) -> str:
     rows = ""
 
@@ -246,6 +300,8 @@ def _outlier_section(report: DiffReport) -> str:
       </table>
     </section>
     """
+
+
 def _categorical_section(report: DiffReport) -> str:
     rows = ""
 
@@ -282,6 +338,7 @@ def _categorical_section(report: DiffReport) -> str:
       </table>
     </section>
     """
+
 
 def _template_css(template: str) -> str:
     base = """
@@ -564,6 +621,7 @@ def _template_css(template: str) -> str:
 
     return base + themes[template]
 
+
 def _safe_frequency_shifts(shifts: dict[str, float]) -> str:
     if not shifts:
         return ""
@@ -572,6 +630,16 @@ def _safe_frequency_shifts(shifts: dict[str, float]) -> str:
         f"{_safe(value)}: {shift:.2%}"
         for value, shift in shifts.items()
     )
+
+
+
+def _safe_pct(value: float | None) -> str:
+    if value is None:
+        return ""
+
+    return f"{value:.2%}"
+
+
 
 def _safe(value: Any) -> str:
     if value is None:

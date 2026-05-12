@@ -37,6 +37,34 @@ def render_csv(report: DiffReport, output: str | None = None) -> str:
         default=0.0,
     )   
 
+    numeric_drifts = sum(1 for diff in report.numeric_diff if diff.is_drifted)
+    high_numeric_drifts = sum(
+        1
+        for diff in report.numeric_diff
+        if diff.is_drifted and diff.severity == "high"
+    )
+    max_mean_shift_pct = max(
+        (
+            diff.mean_shift_pct or 0.0
+            for diff in report.numeric_diff
+        ),
+        default=0.0,
+    )
+    max_std_shift_pct = max(
+        (
+            diff.std_shift_pct or 0.0
+            for diff in report.numeric_diff
+        ),
+        default=0.0,
+    )
+    max_range_shift_pct = max(
+        (
+            diff.range_shift_pct or 0.0
+            for diff in report.numeric_diff
+        ),
+        default=0.0,
+    )
+
     rows = [
         "metric,value",
         f"old_rows,{report.summary.old_rows}",
@@ -59,7 +87,11 @@ def render_csv(report: DiffReport, output: str | None = None) -> str:
         f"delta_duplicate_pct,{report.quality_diff.duplicate_diff.delta_duplicate_pct}",
         f"duplicate_spike,{report.quality_diff.duplicate_diff.is_spike}",
         f"duplicate_severity,{report.quality_diff.duplicate_diff.severity}",
-        f"numeric_drift_columns,{len(report.numeric_diff)}",
+        f"numeric_drift_columns,{numeric_drifts}",
+        f"high_numeric_drifts,{high_numeric_drifts}",
+        f"max_mean_shift_pct,{max_mean_shift_pct}",
+        f"max_std_shift_pct,{max_std_shift_pct}",
+        f"max_range_shift_pct,{max_range_shift_pct}",
         f"categorical_drift_columns,{len(report.categorical_diff)}",
         f"outlier_spikes,{outlier_spikes}",
         f"high_outlier_spikes,{high_outlier_spikes}",

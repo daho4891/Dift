@@ -25,6 +25,7 @@ def render_excel(report: DiffReport, output: str | None = None) -> Path:
 
     _add_summary_sheet(ws, report)
     _add_quality_sheet(wb, report)
+    _add_numeric_sheet(wb, report)
     _add_outlier_sheet(wb, report)
     _add_categorical_sheet(wb, report)
 
@@ -104,6 +105,55 @@ def _add_quality_sheet(wb: Workbook, report: DiffReport) -> None:
     _auto_size_columns(ws)
     ws.freeze_panes = "A2"
 
+
+def _add_numeric_sheet(wb: Workbook, report: DiffReport) -> None:
+    ws = wb.create_sheet("Numeric Drift")
+
+    rows = [
+        [
+            "Column",
+            "Old Mean",
+            "New Mean",
+            "Delta Mean",
+            "Mean Shift %",
+            "Old Std",
+            "New Std",
+            "Delta Std",
+            "Std Shift %",
+            "Delta Range",
+            "Range Shift %",
+            "Threshold",
+            "Drifted",
+            "Severity",
+        ]
+    ]
+
+    for item in report.numeric_diff:
+        rows.append(
+            [
+                item.column,
+                item.old_mean,
+                item.new_mean,
+                item.delta_mean,
+                item.mean_shift_pct,
+                item.old_std,
+                item.new_std,
+                item.delta_std,
+                item.std_shift_pct,
+                item.delta_range,
+                item.range_shift_pct,
+                item.drift_threshold,
+                "Yes" if item.is_drifted else "No",
+                item.severity,
+            ]
+        )
+
+    for row in rows:
+        ws.append(row)
+
+    _style_header(ws)
+    _auto_size_columns(ws)
+    ws.freeze_panes = "A2"
 
 def _add_outlier_sheet(wb: Workbook, report: DiffReport) -> None:
     ws = wb.create_sheet("Outlier Diff")
